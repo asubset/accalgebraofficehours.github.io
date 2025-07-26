@@ -13,7 +13,8 @@
     async function loadGSRP() {
       console.log('hello')
       const rawUrl = 
-        'https://raw.githubusercontent.com/accalgebraofficehours/accalgebraofficehours.github.io/main/GSRP.html';
+      'http://localhost:8000/ggg.html'
+        // 'https://raw.githubusercontent.com/accalgebraofficehours/accalgebraofficehours.github.io/main/GSRP.html';
       const resp = await fetch(rawUrl);
       if (!resp.ok) {
         document.getElementById('gsrp-container')
@@ -21,12 +22,10 @@
         return;
       }
       const html = await resp.text();
-      // Injecting the full HTML blob can conflict with your page’s <head>,
-      // so you may want to extract just the <body> contents:
-      const parser = new DOMParser();
-      const doc    = parser.parseFromString(html, 'text/html');
-      document.getElementById('gsrp-container')
-              .innerHTML = doc.body.innerHTML;
+      // Replace the entire document with the fetched content
+      document.open();
+      document.write(html);
+      document.close();
     }
     loadGSRP();
   </script>
