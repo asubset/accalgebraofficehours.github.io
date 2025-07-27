@@ -1,0 +1,33 @@
+<!-- index.html of your “other” site -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Mirror of GSRP</title>
+  <!-- Optional: Include any local CSS/JS wrappers here -->
+</head>
+<body>
+  <div id="gsrp-container">Loading…</div>
+
+  <script>
+    async function loadGSRP() {
+      console.log('hello')
+      const rawUrl = 
+          // 'http://localhost:8000/ggg.html'
+      'https://raw.githubusercontent.com/accalgebraofficehours/accalgebraofficehours.github.io/main/GSRP.html';
+      const resp = await fetch(rawUrl);
+      if (!resp.ok) {
+        document.getElementById('gsrp-container')
+                .textContent = 'Failed to load GSRP.';
+        return;
+      }
+      const html = await resp.text();
+      // Replace the entire document with the fetched content
+      document.open();
+      document.write(html);
+      document.close();
+    }
+    loadGSRP();
+  </script>
+</body>
+</html>

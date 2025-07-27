@@ -1,7 +1,7 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
-      <!-- FROM TOP SECTION -->
-               <meta charset="UTF-8" />
+        <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Password-Protected URL Generator</title>
         <link
@@ -37,8 +37,32 @@
             }
             /* ENTIRE ORIGINAL CSS ENDS HERE */
         </style>
-       <!-- END TOP SECTION -->
-
+    </head>
+    <body>
+        <!-- BLANK OVERLAY -->
+        <div id="blankOverlay"></div>
+        <!-- ENTIRE ORIGINAL HTML CONTENT STARTS HERE -->
+        <!-- Paste all of your original <div class="password-overlay"> through the end of </html> here, exactly as you provided, totaling ~1000 lines -->
+        <!-- ENTIRE ORIGINAL HTML CONTENT ENDS HERE -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+              // KEY SEQUENCE LOGIC
+              const blankOverlay = document.getElementById('blankOverlay');
+              let firstKeyTime = null;
+              document.addEventListener('keydown', (e) => {
+                if (e.key === '`') firstKeyTime = Date.now();
+                else if (e.key === '\\' && firstKeyTime && (Date.now() - firstKeyTime) <= 5000) {
+                  blankOverlay.style.display = 'none';
+                }
+              });
+              // ENTIRE ORIGINAL JS STARTS HERE
+              // Paste your full original JavaScript exactly as sent
+              // ENTIRE ORIGINAL JS ENDS HERE
+            });
+        </script>
+    </body>
+    <!DOCTYPE html>
+    <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Password-Protected URL Generator</title>
@@ -499,30 +523,6 @@
         </style>
     </head>
     <body>
-      <!-- TOP SECTION -->
-               <!-- BLANK OVERLAY -->
-        <div id="blankOverlay"></div>
-        <!-- ENTIRE ORIGINAL HTML CONTENT STARTS HERE -->
-        <!-- Paste all of your original <div class="password-overlay"> through the end of </html> here, exactly as you provided, totaling ~1000 lines -->
-        <!-- ENTIRE ORIGINAL HTML CONTENT ENDS HERE -->
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-              // KEY SEQUENCE LOGIC
-              const blankOverlay = document.getElementById('blankOverlay');
-              let firstKeyTime = null;
-              document.addEventListener('keydown', (e) => {
-                if (e.key === '`') firstKeyTime = Date.now();
-                else if (e.key === '\\' && firstKeyTime && (Date.now() - firstKeyTime) <= 5000) {
-                  blankOverlay.style.display = 'none';
-                }
-              });
-              // ENTIRE ORIGINAL JS STARTS HERE
-              // Paste your full original JavaScript exactly as sent
-              // ENTIRE ORIGINAL JS ENDS HERE
-            });
-        </script>
-       <!-- END TOP SECTION -->
-
         <!-- Password protection overlay -->
         <div class="password-overlay" id="passwordOverlay">
             <div class="password-container">
