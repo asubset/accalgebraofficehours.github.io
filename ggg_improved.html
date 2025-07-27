@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSRP - Google Sites Remote Proxy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a2980;
+            --secondary-color: #26d0ce;
+            --error-color: #e74c3c;
+            --success-color: #27ae60;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+            --border-radius: 10px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        header {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+            transform: rotate(30deg);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            z-index: 2;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .advanced-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: transparent;
+            color: #666;
+            padding: 4px 6px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .advanced-btn:hover {
+            background: #f8f9fa;
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .advanced-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            background: white;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 41, 128, 0.2);
+        }
+
+        .error {
+            color: var(--error-color);
+            font-size: 14px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #121e5a, #1da3a1);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f1f1f1;
+            color: #555;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .result-header h2 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-buttons button {
+            padding: 12px;
+            font-size: 15px;
+        }
+
+        .session-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .session-actions button {
+            padding: 8px 15px;
+            font-size: 14px;
+            border-radius: 6px;
+            flex: none;
+        }
+
+        .session-history {
+            margin-top: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            display: none;
+        }
+
+        .session-history-header {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .session-history-body {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .session-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .session-item:last-child {
+            border-bottom: none;
+        }
+
+        .session-item.predefined {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .session-id-display {
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .session-date {
+            color: #777;
+            font-size: 13px;
+            margin-top: 3px;
+        }
+
+        .session-type {
+            color: var(--primary-color);
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 3px;
+        }
+
+        .session-toggle {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .toggle-session-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: transparent;
+            color: #3498db;
+            padding: 5px 10px;
+            font-size: 14px;
+            border: 1px solid #3498db;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .toggle-session-btn:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Password overlay styles */
+        .password-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .password-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .password-header h2 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .password-input-group {
+            margin: 20px 0;
+        }
+
+        .password-hint {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #777;
+            font-style: italic;
+        }
+
+        /* Hidden overlay for easter egg */
+        .blank-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 2000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Easter egg blank overlay -->
+    <div id="blankOverlay" class="blank-overlay"></div>
+
+    <!-- Password protection overlay -->
+    <div class="password-overlay" id="passwordOverlay">
+        <div class="password-container">
+            <div class="password-header">
+                <h2><i class="fas fa-lock"></i> Secure Access</h2>
+                <p>Enter the password to access the tool</p>
+            </div>
+
+            <div class="password-input-group">
+                <input type="password" id="passwordInput" placeholder="Enter password">
+                <div class="error" id="passwordError">Incorrect password</div>
+            </div>
+
+            <button id="unlockBtn" class="btn-primary">
+                <i class="fas fa-unlock"></i> Unlock Tool
+            </button>
+
+            <div class="password-hint">
+                <p>Hint: The password is very secure!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main container -->
+    <div class="container" id="mainContainer" style="display: none">
+        <header>
+            <h1><i class="fas fa-lock"></i> GSRP</h1>
+            <p>Google Sites Remote Proxy</p>
+        </header>
+
+        <div class="form-container">
+            <div class="form-header">
+                <button type="button" id="toggleBaseUrlBtn" class="advanced-btn">
+                    <i class="fas fa-cog"></i> Advanced Options
+                </button>
+            </div>
+
+            <form id="redirectForm">
+                <!-- Advanced options - Base URL selector -->
+                <div id="baseUrlGroup" class="input-group" style="display: none;">
+                    <label for="baseUrl">
+                        <i class="fas fa-server"></i> Base URL:
+                    </label>
+                    <select id="baseUrl" required>
+                        <option value="#REPLACE_WITH_BASE_URL#" selected>Default</option>
+                        <option value="http://localhost:8080">Local (localhost:8080)</option>
+                        <option value="https://www.cia.gov">Central Intelligence Agency (DON'T USE)</option>
+                    </select>
+                </div>
+
+                <!-- Session ID input -->
+                <div class="input-group">
+                    <label for="sessionId">
+                        <i class="fas fa-key"></i> Session ID:
+                    </label>
+                    <input type="text" id="sessionId" placeholder="Enter your unique session ID" required>
+                    <div class="error" id="sessionError">Session ID cannot be empty</div>
+
+                    <div class="session-actions">
+                        <button type="button" id="generateSessionBtn" class="btn-secondary">
+                            <i class="fas fa-random"></i> Grab Random Session
+                        </button>
+                        <button type="button" id="saveSessionBtn" class="btn-secondary">
+                            <i class="fas fa-save"></i> Save Session
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Target URL input -->
+                <div class="input-group">
+                    <label for="targetUrl">
+                        <i class="fas fa-globe"></i> Delve Into the Web:
+                    </label>
+                    <input type="text" id="targetUrl" 
+                           placeholder="Search or type a link (https:// required for a link)" required>
+                    <div class="error" id="urlError">Please enter a valid URL or search terms</div>
+                </div>
+
+                <!-- Password input -->
+                <div class="input-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> Password:
+                    </label>
+                    <input type="password" id="password" placeholder="Enter the password" required>
+                    <div class="error" id="passwordFormError">Incorrect password</div>
+                </div>
+
+                <!-- Submit buttons -->
+                <div class="btn-group">
+                    <button type="submit" id="submitBtn" class="btn-primary">
+                        <i class="fas fa-bolt"></i> Fetch Data
+                    </button>
+                    <button type="button" id="resetBtn" class="btn-secondary">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </form>
+
+            <!-- Session history toggle -->
+            <div class="session-toggle">
+                <button id="toggleSessionHistory" class="toggle-session-btn">
+                    <i class="fas fa-history"></i> Show Session History
+                </button>
+            </div>
+
+            <!-- Session history -->
+            <div class="session-history" id="sessionHistory">
+                <div class="session-history-header">
+                    <h3><i class="fas fa-history"></i> Saved Sessions</h3>
+                    <button id="clearSessionsBtn" class="btn-secondary">
+                        <i class="fas fa-trash"></i> Clear All
+                    </button>
+                </div>
+                <div class="session-history-body" id="sessionsList"></div>
+            </div>
+
+            <!-- Loading indicator -->
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+
+            <!-- Results container -->
+            <div class="result-container" id="resultContainer">
+                <div class="result-header">
+                    <h2>
+                        <i class="fas fa-check-circle"></i> Your Task is Completed!
+                    </h2>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="newUrlBtn" class="btn-secondary">
+                        <i class="fas fa-plus-circle"></i> New Search
+                    </button>
+                    <button id="stealthBtn" class="btn-primary" style="background: linear-gradient(90deg, #a044ff, #6a00ff);">
+                        <i class="fas fa-plus"></i> Open in New Tab
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>GSRP &copy; 2025 | Made by Poodleschool and the Pooxie Team</p>
+        </footer>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            password: "PoodleTree22!",
+            sessionStorageKey: 'urlGeneratorSessions',
+            predefinedSessionsUrl: 'https://accalgebraofficehours.github.io/PREDEFINED_SESSIONS.json',
+            loadingDelay: 800
+        };
+
+        // Application state
+        const state = {
+            generatedUrl: '',
+            sessions: [],
+            sessionHistoryVisible: false,
+            baseUrlVisible: false,
+            predefinedSessions: []
+        };
+
+        // DOM elements
+        const elements = {
+            // Overlays
+            blankOverlay: document.getElementById('blankOverlay'),
+            passwordOverlay: document.getElementById('passwordOverlay'),
+            mainContainer: document.getElementById('mainContainer'),
+            
+            // Password form
+            passwordInput: document.getElementById('passwordInput'),
+            passwordError: document.getElementById('passwordError'),
+            unlockBtn: document.getElementById('unlockBtn'),
+            
+            // Main form
+            form: document.getElementById('redirectForm'),
+            sessionInput: document.getElementById('sessionId'),
+            urlInput: document.getElementById('targetUrl'),
+            passwordFormInput: document.getElementById('password'),
+            baseUrlSelect: document.getElementById('baseUrl'),
+            baseUrlGroup: document.getElementById('baseUrlGroup'),
+            
+            // Buttons
+            toggleBaseUrlBtn: document.getElementById('toggleBaseUrlBtn'),
+            generateSessionBtn: document.getElementById('generateSessionBtn'),
+            saveSessionBtn: document.getElementById('saveSessionBtn'),
+            submitBtn: document.getElementById('submitBtn'),
+            resetBtn: document.getElementById('resetBtn'),
+            newUrlBtn: document.getElementById('newUrlBtn'),
+            stealthBtn: document.getElementById('stealthBtn'),
+            toggleSessionHistory: document.getElementById('toggleSessionHistory'),
+            clearSessionsBtn: document.getElementById('clearSessionsBtn'),
+            
+            // Errors and indicators
+            sessionError: document.getElementById('sessionError'),
+            urlError: document.getElementById('urlError'),
+            passwordFormError: document.getElementById('passwordFormError'),
+            loadingIndicator: document.getElementById('loadingIndicator'),
+            
+            // Results and history
+            resultContainer: document.getElementById('resultContainer'),
+            sessionHistory: document.getElementById('sessionHistory'),
+            sessionsList: document.getElementById('sessionsList')
+        };
+
+        // Utility functions
+        const utils = {
+            isValidUrl(url) {
+                try {
+                    new URL(url);
+                    return true;
+                } catch {
+                    return false;
+                }
+            },
+            
+            clearErrors() {
+                elements.sessionError.style.display = 'none';
+                elements.urlError.style.display = 'none';
+                elements.passwordFormError.style.display = 'none';
+                elements.sessionInput.style.borderColor = '#e0e0e0';
+                elements.urlInput.style.borderColor = '#e0e0e0';
+                elements.passwordFormInput.style.borderColor = '#e0e0e0';
+            },
+            
+            showError(errorElement, inputElement, message) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                inputElement.style.borderColor = '#e74c3c';
+            },
+            
+            shakeElement(element) {
+                element.animate([
+                    { transform: 'translateX(0)' },
+                    { transform: 'translateX(-10px)' },
+                    { transform: 'translateX(10px)' },
+                    { transform: 'translateX(-10px)' },
+                    { transform: 'translateX(0)' }
+                ], { duration: 400 });
+            }
+        };
+
+        // Session management
+        const sessionManager = {
+            load() {
+                const saved = localStorage.getItem(CONFIG.sessionStorageKey);
+                if (saved) {
+                    state.sessions = JSON.parse(saved);
+                }
+            },
+            
+            save() {
+                localStorage.setItem(CONFIG.sessionStorageKey, JSON.stringify(state.sessions));
+            },
+            
+            add(sessionId, isPredefined = false) {
+                const exists = state.sessions.some(session => session.id === sessionId);
+                if (!exists) {
+                    const now = new Date().toLocaleString();
+                    state.sessions.unshift({
+                        id: sessionId,
+                        createdOn: now,
+                        lastUsed: now,
+                        isPredefined
+                    });
+                    this.save();
+                    return true;
+                }
+                return false;
+            },
+            
+            updateLastUsed(sessionId) {
+                const session = state.sessions.find(s => s.id === sessionId);
+                if (session) {
+                    session.lastUsed = new Date().toLocaleString();
+                    this.save();
+                }
+            },
+            
+            clearUserSessions() {
+                state.sessions = state.sessions.filter(session => session.isPredefined);
+                this.save();
+            },
+            
+            remove(index) {
+                state.sessions.splice(index, 1);
+                this.save();
+            },
+            
+            async fetchPredefined() {
+                try {
+                    const response = await fetch(CONFIG.predefinedSessionsUrl);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    
+                    const data = await response.json();
+                    if (!Array.isArray(data)) throw new Error('Invalid data format');
+                    
+                    state.predefinedSessions = data;
+                    
+                    // Add to sessions list
+                    let addedNew = false;
+                    data.forEach(sessionId => {
+                        if (typeof sessionId === 'string' && sessionId.trim()) {
+                            if (this.add(sessionId, true)) {
+                                addedNew = true;
+                            }
+                        }
+                    });
+                    
+                    return addedNew;
+                } catch (error) {
+                    console.error('Failed to fetch predefined sessions:', error);
+                    state.predefinedSessions = ['It seems that my github pages site is down. Contact sam.poodleschool.founder@gmail.com to report/fix the issue'];
+                    return false;
+                }
+            },
+            
+            async getRandomSession() {
+                if (state.sessions.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * state.sessions.length);
+                    return state.sessions[randomIndex].id;
+                }
+                
+                if (state.predefinedSessions.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * state.predefinedSessions.length);
+                    return state.predefinedSessions[randomIndex];
+                }
+                
+                await this.fetchPredefined();
+                if (state.predefinedSessions.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * state.predefinedSessions.length);
+                    return state.predefinedSessions[randomIndex];
+                }
+                
+                return "Can't fetch session IDs";
+            }
+        };
+
+        // UI managers
+        const uiManager = {
+            renderSessions() {
+                elements.sessionsList.innerHTML = '';
+                
+                if (state.sessions.length === 0) {
+                    elements.sessionsList.innerHTML = '<p style="padding: 15px; text-align: center; color: #777;">No saved sessions</p>';
+                    return;
+                }
+                
+                state.sessions.forEach((session, index) => {
+                    const sessionElement = document.createElement('div');
+                    sessionElement.className = `session-item ${session.isPredefined ? 'predefined' : ''}`;
+                    
+                    sessionElement.innerHTML = `
+                        <div>
+                            <div class="session-id-display">${session.id}</div>
+                            <div class="session-date">Created: ${session.createdOn}</div>
+                            ${session.isPredefined ? '<div class="session-type">(Predefined)</div>' : ''}
+                        </div>
+                        <div class="session-actions">
+                            <button class="btn-secondary use-session-btn" data-id="${session.id}">
+                                <i class="fas fa-edit"></i> Use
+                            </button>
+                            ${!session.isPredefined ? `
+                                <button class="btn-secondary delete-session-btn" data-index="${index}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                    elements.sessionsList.appendChild(sessionElement);
+                });
+                
+                // Add event listeners
+                document.querySelectorAll('.use-session-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const sessionId = e.target.closest('.use-session-btn').dataset.id;
+                        elements.sessionInput.value = sessionId;
+                    });
+                });
+                
+                document.querySelectorAll('.delete-session-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = parseInt(e.target.closest('.delete-session-btn').dataset.index);
+                        sessionManager.remove(index);
+                        this.renderSessions();
+                    });
+                });
+            },
+            
+            toggleSessionHistory() {
+                state.sessionHistoryVisible = !state.sessionHistoryVisible;
+                elements.sessionHistory.style.display = state.sessionHistoryVisible ? 'block' : 'none';
+                elements.toggleSessionHistory.innerHTML = state.sessionHistoryVisible ?
+                    '<i class="fas fa-times"></i> Hide Session History' :
+                    '<i class="fas fa-history"></i> Show Session History';
+                
+                if (state.sessionHistoryVisible) {
+                    this.renderSessions();
+                }
+            },
+            
+            toggleBaseUrl() {
+                state.baseUrlVisible = !state.baseUrlVisible;
+                elements.baseUrlGroup.style.display = state.baseUrlVisible ? 'block' : 'none';
+                
+                if (state.baseUrlVisible) {
+                    elements.toggleBaseUrlBtn.classList.add('active');
+                    elements.toggleBaseUrlBtn.innerHTML = '<i class="fas fa-times"></i> Hide Advanced Options';
+                } else {
+                    elements.toggleBaseUrlBtn.classList.remove('active');
+                    elements.toggleBaseUrlBtn.innerHTML = '<i class="fas fa-cog"></i> Advanced Options';
+                }
+            },
+            
+            resetForm() {
+                elements.form.reset();
+                utils.clearErrors();
+                elements.resultContainer.style.display = 'none';
+                
+                // Reset advanced options
+                state.baseUrlVisible = false;
+                elements.baseUrlGroup.style.display = 'none';
+                elements.toggleBaseUrlBtn.classList.remove('active');
+                elements.toggleBaseUrlBtn.innerHTML = '<i class="fas fa-cog"></i> Advanced Options';
+            },
+            
+            openInStealthMode(url) {
+                const win = window.open('', '_blank');
+                win.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Schoology</title>
+                        <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/accalgebraofficehours/accalgebraofficehours.github.io/refs/heads/main/faviconV2.png">
+                        <style>
+                            body, html {
+                                margin: 0;
+                                padding: 0;
+                                overflow: hidden;
+                                height: 100%;
+                                background: #1a2980;
+                            }
+                            iframe {
+                                width: 100%;
+                                height: 100%;
+                                border: none;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <iframe src="${url}" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+                    </body>
+                    </html>
+                `);
+                win.document.close();
+            }
+        };
+
+        // Event handlers
+        const eventHandlers = {
+            setupPasswordAuth() {
+                const checkPassword = () => {
+                    const enteredPassword = elements.passwordInput.value.trim();
+                    
+                    if (enteredPassword === CONFIG.password) {
+                        elements.passwordOverlay.style.display = 'none';
+                        elements.mainContainer.style.display = 'block';
+                        localStorage.setItem('urlGeneratorUnlocked', 'true');
+                    } else {
+                        elements.passwordError.style.display = 'block';
+                        elements.passwordInput.style.borderColor = '#e74c3c';
+                        elements.passwordInput.value = '';
+                        elements.passwordInput.focus();
+                        utils.shakeElement(elements.passwordInput);
+                    }
+                };
+                
+                elements.unlockBtn.addEventListener('click', checkPassword);
+                elements.passwordInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') checkPassword();
+                });
+            },
+            
+            setupEasterEgg() {
+                let firstKeyTime = null;
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === '`') {
+                        firstKeyTime = Date.now();
+                    } else if (e.key === '\\' && firstKeyTime && (Date.now() - firstKeyTime) <= 5000) {
+                        elements.blankOverlay.style.display = 'none';
+                    }
+                });
+            },
+            
+            async setupSessionGeneration() {
+                elements.generateSessionBtn.addEventListener('click', async () => {
+                    try {
+                        elements.generateSessionBtn.disabled = true;
+                        elements.generateSessionBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                        
+                        const sessionId = await sessionManager.getRandomSession();
+                        elements.sessionInput.value = sessionId;
+                        
+                        if (sessionId.startsWith("Can't fetch")) {
+                            utils.showError(elements.sessionError, elements.sessionInput, sessionId);
+                        } else {
+                            elements.sessionError.style.display = 'none';
+                            elements.generateSessionBtn.innerHTML = '<i class="fas fa-check-circle"></i> Grab Random Session';
+                            
+                            // Show session history
+                            if (!state.sessionHistoryVisible) {
+                                await sessionManager.fetchPredefined();
+                                uiManager.toggleSessionHistory();
+                            }
+                            
+                            setTimeout(() => {
+                                elements.generateSessionBtn.innerHTML = '<i class="fas fa-random"></i> Grab Random Session';
+                            }, 750);
+                        }
+                        
+                        elements.generateSessionBtn.disabled = false;
+                    } catch (error) {
+                        console.error('Error generating session:', error);
+                        utils.showError(elements.sessionError, elements.sessionInput, 'Failed to generate session. Please try again.');
+                        elements.generateSessionBtn.innerHTML = '<i class="fas fa-random"></i> Try Again';
+                        elements.generateSessionBtn.disabled = false;
+                    }
+                });
+            },
+            
+            setupFormSubmission() {
+                elements.form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    
+                    const sessionId = elements.sessionInput.value.trim();
+                    const targetUrl = elements.urlInput.value.trim();
+                    const baseUrl = elements.baseUrlSelect.value;
+                    const password = elements.passwordFormInput.value.trim();
+                    
+                    utils.clearErrors();
+                    let valid = true;
+                    
+                    // Validate password
+                    if (password !== CONFIG.password) {
+                        utils.showError(elements.passwordFormError, elements.passwordFormInput, 'Incorrect password');
+                        utils.shakeElement(elements.passwordFormInput);
+                        valid = false;
+                    }
+                    
+                    // Validate session ID
+                    if (!sessionId) {
+                        utils.showError(elements.sessionError, elements.sessionInput, 'Session ID cannot be empty');
+                        valid = false;
+                    }
+                    
+                    // Validate target URL
+                    if (!targetUrl) {
+                        utils.showError(elements.urlError, elements.urlInput, 'Please enter a target URL or search terms');
+                        valid = false;
+                    }
+                    
+                    if (!valid) return;
+                    
+                    // Show loading
+                    elements.loadingIndicator.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        elements.loadingIndicator.style.display = 'none';
+                        
+                        try {
+                            // Determine final target URL
+                            let finalTargetUrl;
+                            if (utils.isValidUrl(targetUrl)) {
+                                finalTargetUrl = targetUrl;
+                            } else {
+                                finalTargetUrl = `https://search.brave.com/search?q=${encodeURIComponent(targetUrl)}`;
+                            }
+                            
+                            // Build the final URL
+                            state.generatedUrl = `${baseUrl}/${encodeURIComponent(sessionId)}/${finalTargetUrl}`;
+                            
+                            // Show results
+                            elements.resultContainer.style.display = 'block';
+                            window.scrollTo({
+                                top: document.body.scrollHeight,
+                                behavior: 'smooth'
+                            });
+                            
+                            // Update session last used
+                            sessionManager.updateLastUsed(sessionId);
+                            uiManager.renderSessions();
+                            
+                        } catch (error) {
+                            alert(`Error: ${error.message}`);
+                        }
+                    }, CONFIG.loadingDelay);
+                });
+            },
+            
+            setupButtons() {
+                // Save session button
+                elements.saveSessionBtn.addEventListener('click', () => {
+                    const sessionId = elements.sessionInput.value.trim();
+                    
+                    if (!sessionId) {
+                        utils.showError(elements.sessionError, elements.sessionInput, 'Session ID cannot be empty');
+                        return;
+                    }
+                    
+                    if (sessionManager.add(sessionId)) {
+                        uiManager.renderSessions();
+                        if (!state.sessionHistoryVisible) {
+                            uiManager.toggleSessionHistory();
+                        }
+                    }
+                });
+                
+                // Toggle buttons
+                elements.toggleBaseUrlBtn.addEventListener('click', uiManager.toggleBaseUrl);
+                elements.toggleSessionHistory.addEventListener('click', async () => {
+                    await sessionManager.fetchPredefined();
+                    uiManager.toggleSessionHistory();
+                });
+                
+                // Clear sessions
+                elements.clearSessionsBtn.addEventListener('click', () => {
+                    sessionManager.clearUserSessions();
+                    uiManager.renderSessions();
+                });
+                
+                // Form buttons
+                elements.resetBtn.addEventListener('click', uiManager.resetForm);
+                elements.newUrlBtn.addEventListener('click', uiManager.resetForm);
+                elements.stealthBtn.addEventListener('click', () => {
+                    if (state.generatedUrl) {
+                        uiManager.openInStealthMode(state.generatedUrl);
+                    }
+                });
+            }
+        };
+
+        // Initialize application
+        function init() {
+            // Check if already unlocked
+            const isUnlocked = localStorage.getItem('urlGeneratorUnlocked') === 'true';
+            if (isUnlocked) {
+                elements.passwordOverlay.style.display = 'none';
+                elements.mainContainer.style.display = 'block';
+                sessionManager.load();
+            }
+            
+            // Setup event handlers
+            eventHandlers.setupPasswordAuth();
+            eventHandlers.setupEasterEgg();
+            eventHandlers.setupSessionGeneration();
+            eventHandlers.setupFormSubmission();
+            eventHandlers.setupButtons();
+        }
+
+        // Start application
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
