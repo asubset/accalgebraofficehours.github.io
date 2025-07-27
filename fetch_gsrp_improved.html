@@ -60,7 +60,7 @@
 
   <script>
     // Configuration
-    const CONFIG = {
+    const FETCH_CONFIG = {
       baseUrl: 'http://127.0.0.1:8080',
       sourceUrl: 'http://localhost:8000/ggg_improved.html',
       placeholder: '#REPLACE_WITH_BASE_URL#',
@@ -73,9 +73,9 @@
       try {
         // Add timeout to prevent hanging
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), CONFIG.loadingTimeout);
+        const timeoutId = setTimeout(() => controller.abort(), FETCH_CONFIG.loadingTimeout);
         
-        const response = await fetch(CONFIG.sourceUrl, {
+        const response = await fetch(FETCH_CONFIG.sourceUrl, {
           signal: controller.signal
         });
         
@@ -88,7 +88,7 @@
         let html = await response.text();
         
         // Replace base URL placeholder
-        html = html.replace(new RegExp(CONFIG.placeholder, 'g'), CONFIG.baseUrl);
+        html = html.replace(new RegExp(FETCH_CONFIG.placeholder, 'g'), FETCH_CONFIG.baseUrl);
         
         // Replace the entire document
         document.open();
